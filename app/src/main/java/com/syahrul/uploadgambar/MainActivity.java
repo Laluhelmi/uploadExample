@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private Button upload, pilih;
     private ImageView review;
     private String data;
+    private String var;
     private Uri UrlGambar;
 
 
