@@ -233,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
             while ((line = buf.readLine()) != null) {
                 sb.append(line);
             }
-            buf.close();;
+            buf.close();
             respon = sb.toString();
         }catch (Exception e){
             respon = e.getMessage();
@@ -256,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
         android.support.media.ExifInterface exifInterface = null;
         Bitmap bitmap = null;
         try {
-            bitmap = android.provider.MediaStore.Images.Media.getBitmap(getContentResolver(), uriGambar);
+            bitmap = android.provider.MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
             exifInterface = new android.support.media.ExifInterface(getContentResolver().openInputStream(uri));
 
         int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,1);
@@ -266,8 +266,8 @@ public class MainActivity extends AppCompatActivity {
 
         int setTinggi = lebar;
         int setLebar  = tinggi;
-        float scalelebar = ((float) setLebar) / lebar;
-        float scaletinggi = ((float)setTinggi) / tinggi;
+        int scalelebar;
+        int scaletinggi;
 
           //matrix.setScale(scalelebar,scaletinggi);
         if(orientation == 6){
@@ -277,8 +277,16 @@ public class MainActivity extends AppCompatActivity {
         }else if (orientation == 8){
             matrix.postRotate(270);
         }
-        bitmap = Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),matrix,true);
-        bitmap = Bitmap.createScaledBitmap(bitmap,648,1152,true);
+        scalelebar = 648;scaletinggi = 1152;
+        bitmap = Bitmap.createBitmap(bitmap,0,0,lebar,tinggi,matrix,true);
+        if(lebar > tinggi){
+            int temp = scalelebar;
+            scalelebar = scaletinggi;
+            scaletinggi = temp;
+        }
+            bitmap = Bitmap.createScaledBitmap(bitmap,scalelebar,scaletinggi,true);
+
+
         }catch (IOException e) {
             e.printStackTrace();
         }
