@@ -253,11 +253,11 @@ public class MainActivity extends AppCompatActivity {
         return bs;
     }
     public Bitmap ubahOrenatasi(Uri uri){
-        ExifInterface exifInterface = null;
+        android.support.media.ExifInterface exifInterface = null;
         Bitmap bitmap = null;
         try {
             bitmap = android.provider.MediaStore.Images.Media.getBitmap(getContentResolver(), uriGambar);
-            exifInterface = new ExifInterface(getContentResolver().openInputStream(uri));
+            exifInterface = new android.support.media.ExifInterface(getContentResolver().openInputStream(uri));
 
         int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,1);
         Matrix matrix = new Matrix();
@@ -270,14 +270,14 @@ public class MainActivity extends AppCompatActivity {
         float scaletinggi = ((float)setTinggi) / tinggi;
 
           //matrix.setScale(scalelebar,scaletinggi);
-//        if(orientation == 6){
-//            matrix.postRotate(90);
-//        }else if(orientation == 3){
-//            matrix.postRotate(180);
-//        }else if (orientation == 8){
-//            matrix.postRotate(270);
-//        }
-        //bitmap = Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),matrix,true);
+        if(orientation == 6){
+            matrix.postRotate(90);
+        }else if(orientation == 3){
+            matrix.postRotate(180);
+        }else if (orientation == 8){
+            matrix.postRotate(270);
+        }
+        bitmap = Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),matrix,true);
         bitmap = Bitmap.createScaledBitmap(bitmap,648,1152,true);
         }catch (IOException e) {
             e.printStackTrace();
