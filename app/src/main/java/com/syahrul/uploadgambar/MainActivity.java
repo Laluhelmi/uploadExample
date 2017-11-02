@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                uploadGambar();
+                //uploadGambar();
             }
         });
         pilih.setOnClickListener(new View.OnClickListener() {
@@ -89,19 +89,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    public void tampilHasil(){
+    public void tampilHasil(Bitmap bitmap){
         this.getContentResolver().notifyChange(uriGambar, null);
         ContentResolver cr = this.getContentResolver();
-        Bitmap bitmap;
-        try
-        {
-            bitmap = android.provider.MediaStore.Images.Media.getBitmap(cr, uriGambar);
             review.setImageBitmap(bitmap);
-        }
-        catch (Exception e)
-        {
-            Toast.makeText(this, "Failed to load", Toast.LENGTH_SHORT).show();
-        }
+
     }
     private Uri uriGambar;
     private File file;
@@ -118,19 +110,26 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+            new AsyncTask<Void,Void,Bitmap>(){
+                @Override
+                protected Bitmap doInBackground(Void... voids) {
+                    return  ubahOrenatasi(uriGambar);
+                    //return null;
+                }
 
-        try {
-            uploadGambar();
-        } catch (Exception e) {
-            Toast.makeText(MainActivity.this, e.getMessage()+"erro diinputster", Toast.LENGTH_SHORT).show();
-        }
-        Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);//mendetek ke galeri
-        Uri contentUri = Uri.fromFile(file);
-        intent.setData(contentUri);
-        sendBroadcast(intent);
-        tampilHasil();
+                @Override
+                protected void onPostExecute(Bitmap aVoid) {
+                    super.onPostExecute(aVoid);
+                    review.setImageBitmap(aVoid);
+                    Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);//mendetek ke galeri
+                    Uri contentUri = Uri.fromFile(file);
+                    intent.setData(contentUri);
+                    sendBroadcast(intent);
+                    uploadGambar(aVoid);
+                }
+            }.execute();
     }
-    public void uploadGambar(){
+    public void uploadGambar(final Bitmap bitmap){
         final ProgressDialog progressDialog = new ProgressDialog(this);
         new AsyncTask<Void,Void,String>(){
             @Override
@@ -143,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             protected String doInBackground(Void... voids) {
               return  uploadKeServer(uriGambar.getPath(),MainActivity.this,
-                      uriGambar,"df");
+                      bitmap,"df");
             }
 
             @Override
@@ -156,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public String uploadKeServer(String file, Context context, Uri uri,String idpesan){
+    public String uploadKeServer(String file, Context context, Bitmap bitmap,String idpesan){
         HttpURLConnection conn = null;
         String tipefile = null;
         DataOutputStream dos = null;
@@ -181,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
             dos = new DataOutputStream(conn.getOutputStream());
             ByteArrayInputStream fileInputStream=null;
             File sourceFile = new File(Environment.getExternalStorageDirectory()+file);
-            fileInputStream = bitmapToStream(uri);
+            fileInputStream = bitmapToStream(bitmap);
             Log.d("ukuran gambar",String.valueOf(fileInputStream.available()));
             String param = "type="+tipefile;
             dos.writeBytes(twoHyphens + boundary + lineEnd);
@@ -241,13 +240,10 @@ public class MainActivity extends AppCompatActivity {
         }
         return respon;
     }
-    public ByteArrayInputStream bitmapToStream(Uri uri){
-        Bitmap bitmap=null;
+    public ByteArrayInputStream bitmapToStream(Bitmap bitmap){
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-            bitmap = Bitmap.createScaledBitmap(bitmap,648,1152,
-                    true);
+            bitmap = bitmap;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -255,5 +251,37 @@ public class MainActivity extends AppCompatActivity {
         byte[] bitmapdata = bos.toByteArray();
         ByteArrayInputStream bs = new ByteArrayInputStream(bitmapdata);
         return bs;
+    }
+    public Bitmap ubahOrenatasi(Uri uri){
+        ExifInterface exifInterface = null;
+        Bitmap bitmap = null;
+        try {
+            bitmap = android.provider.MediaStore.Images.Media.getBitmap(getContentResolver(), uriGambar);
+            exifInterface = new ExifInterface(getContentResolver().openInputStream(uri));
+
+        int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,1);
+        Matrix matrix = new Matrix();
+        int lebar = bitmap.getWidth();
+        int tinggi= bitmap.getHeight();
+
+        int setTinggi = lebar;
+        int setLebar  = tinggi;
+        float scalelebar = ((float) setLebar) / lebar;
+        float scaletinggi = ((float)setTinggi) / tinggi;
+
+          //matrix.setScale(scalelebar,scaletinggi);
+//        if(orientation == 6){
+//            matrix.postRotate(90);
+//        }else if(orientation == 3){
+//            matrix.postRotate(180);
+//        }else if (orientation == 8){
+//            matrix.postRotate(270);
+//        }
+        //bitmap = Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),matrix,true);
+        bitmap = Bitmap.createScaledBitmap(bitmap,648,1152,true);
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bitmap;
     }
 }
