@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/UploadGambar.iml" filepath="$PROJECT_DIR$/UploadGambar.iml" />
+      <module fileurl="file://D:\android\uploadExample\UploadGambar.iml" filepath="D:\android\uploadExample\UploadGambar.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://D:\android\uploadExample\app\app.iml" filepath="D:\android\uploadExample\app\app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/uploadExample.iml" filepath="$PROJECT_DIR$/uploadExample.iml" />
     </modules>
   </component>
 </project>
